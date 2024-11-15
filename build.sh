@@ -1,15 +1,7 @@
 #!/bin/bash
 
- platform=`uname`
+platform=`uname`
 
-git submodule update --init --recursive
-
-if [ "$platform" = "Linux" ];then
-  sudo apt install -y libx11-dev xorg-dev libxtst-dev
-  sudo apt install -y xcb libxcb-xkb-dev x11-xkb-utils libx11-xcb-dev libxkbcommon-x11-dev libxkbcommon-dev
-  sudo apt install -y xsel xclip
-fi
-echo "preper..."
 go mod tidy
 echo "build..."
 go build -ldflags "-s -w" ./cmd/sshx
@@ -46,7 +38,6 @@ if [ "$1" = "install" ];then
     else
       echo "TODO: $platform"
     fi
-   
   fi
 fi
 

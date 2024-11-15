@@ -4,31 +4,26 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/google/uuid"
-	"github.com/pion/webrtc/v3"
+	"github.com/pion/webrtc/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/suutaku/go-vnc/pkg/config"
 	"github.com/suutaku/sshx/internal/utils"
 )
 
 type Configure struct {
 	LocalSSHPort        int32
-	LocalHTTPPort       int32
 	LocalTCPPort        int32
 	ID                  string
 	SignalingServerAddr string
 	RTCConf             webrtc.Configuration
-	VNCConf             config.Configure
-	VNCStaticPath       string
 	ETHAddr             string
+	AllowNodes          []string
 }
 
 type ConfManager struct {
@@ -38,11 +33,11 @@ type ConfManager struct {
 }
 
 var defaultConfig = Configure{
-	LocalHTTPPort:       80,
+	ETHAddr:             "127.0.0.1",
 	LocalSSHPort:        22,
-	LocalTCPPort:        2224,
+	LocalTCPPort:        12224,
 	ID:                  uuid.New().String(),
-	SignalingServerAddr: "http://140.179.153.231:11095",
+	SignalingServerAddr: "http://turn.cloud-rtc.com",
 	RTCConf: webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
@@ -56,14 +51,14 @@ var defaultConfig = Configure{
 			},
 		},
 	},
-	VNCConf: config.DefaultConfigure,
+	AllowNodes: []string{},
 }
 
 func ClearKnownHosts(subStr string) {
 	subStr = strings.Replace(subStr, "127.0.0.1", "[127.0.0.1]", 1)
 	//[127.0.0.1]:2222
 	fileName := os.Getenv("HOME") + "/.ssh/known_hosts"
-	input, err := ioutil.ReadFile(fileName)
+	input, err := os.ReadFile(fileName)
 	if err != nil {
 		logrus.Error(err)
 		return
@@ -77,7 +72,7 @@ func ClearKnownHosts(subStr string) {
 		}
 	}
 	output := strings.Join(newLines, "\n")
-	err = ioutil.WriteFile(fileName, []byte(output), 0777)
+	err = os.WriteFile(fileName, []byte(output), 0777)
 	if err != nil {
 		logrus.Error(err)
 		return
@@ -94,20 +89,13 @@ func NewConfManager(homePath string) *ConfManager {
 	vp.SetConfigName(".sshx_config")
 	vp.SetConfigType("json")
 	vp.AddConfigPath(homePath)
-	vp.WatchConfig()
-	vp.OnConfigChange(func(e fsnotify.Event) {
-		err := vp.Unmarshal(&tmp)
-		if err != nil {
-			logrus.Error(err)
-			return
-		}
-	})
+
 	err := vp.ReadInConfig() // Find and read the config file
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error if desired
 			defaultConfig.RTCConf.PeerIdentity = utils.HashString(fmt.Sprintf("%s%d", defaultConfig.ID, time.Now().Unix()))
-			defaultConfig.VNCStaticPath = path.Join(homePath, "noVNC")
+			defaultConfig.AllowNodes = append(defaultConfig.AllowNodes, defaultConfig.ID)
 			bs, _ := json.MarshalIndent(defaultConfig, "", "  ")
 			vp.ReadConfig(bytes.NewBuffer(bs))
 			err = vp.WriteConfigAs(path.Join(homePath, "./.sshx_config.json"))

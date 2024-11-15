@@ -8,8 +8,6 @@ import (
 	"github.com/suutaku/sshx/internal/utils"
 )
 
-var defaultHomePath = "/etc/sshx"
-
 func main() {
 	if utils.DebugOn() {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -24,10 +22,7 @@ func main() {
 	app.Command("scp", "copy files or directory from/to remote host", cmdCopy)
 	app.Command("proxy", "start proxy", cmdProxy)
 	app.Command("stat", "get status", cmdStatus)
-	app.Command("fs", "sshfs filesystem", cmdSSHFS)
-	app.Command("vnc", "vnc service", cmdVNCService)
 	app.Command("msg", "a message console", cmdMessage)
-	app.Command("trans", "transfer a file", cmdTransfer)
 	app.Run(os.Args)
 
 }

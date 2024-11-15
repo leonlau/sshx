@@ -273,7 +273,7 @@ func (stm *StatManager) AddPair(pair Connection) error {
 			return stm.doAddPair(pair)
 		}
 		for !oldPair.IsReady() && !pair.IsReady() {
-			logrus.Debug("watting %s\n", pair.Name())
+			logrus.Debugf("watting %s\n", pair.Name())
 			time.Sleep(500 * time.Millisecond)
 		}
 		if oldPair.IsReady() {

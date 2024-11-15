@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/user"
@@ -21,7 +20,7 @@ import (
 	"github.com/suutaku/sshx/pkg/types"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
-	"golang.org/x/crypto/ssh/terminal"
+	terminal "golang.org/x/term"
 )
 
 const NumberOfPrompts = 3
@@ -84,7 +83,7 @@ func (s *SSH) privateKeyOption() {
 	if s.Identify == "" {
 		s.Identify = path.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
 	}
-	pemBytes, err := ioutil.ReadFile(s.Identify)
+	pemBytes, err := os.ReadFile(s.Identify)
 	if err != nil {
 		logrus.Printf("Reading private key file failed %v", err)
 		return
@@ -112,6 +111,13 @@ func (s *SSH) decodeAddress() error {
 		userName = sps[0]
 		addr = sps[1]
 	}
+	// cm := conf.NewConfManager("")
+
+	// if cm.Conf.AllowUsers != nil {
+	// 	logrus.Info("allowed users", cm.Conf.AllowUsers)
+	// 	slices.Contains(cm.Conf.AllowUsers, userName)
+	// 	return fmt.Errorf("not allowed user")
+	// }
 	s.config.User = userName
 	s.HId = addr
 	return nil
@@ -121,6 +127,7 @@ func (s *SSH) decodeAddress() error {
 func (s *SSH) OpenTerminal(conn net.Conn) error {
 	logrus.Debug("dialRemoteAndOpenTerminal")
 	s.config.Auth = append(s.config.Auth, ssh.RetryableAuthMethod(ssh.PasswordCallback(s.passwordCallback), NumberOfPrompts))
+
 	c, chans, reqs, err := ssh.NewClientConn(conn, "", &s.config)
 	if err != nil {
 		return err
@@ -272,7 +279,7 @@ func addHostKey(host string, remote net.Addr, pubKey ssh.PublicKey) error {
 }
 
 /*
-	X11 tools
+X11 tools
 */
 type x11request struct {
 	SingleConnection bool

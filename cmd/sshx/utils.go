@@ -7,6 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	defaultHomePath = "/etc/sshx"
+)
+
 func getRootPath() string {
 	rootStr := os.Getenv("SSHX_HOME")
 	if rootStr == "" {

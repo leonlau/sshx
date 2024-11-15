@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"slices"
 	"time"
 
 	"github.com/suutaku/sshx/pkg/impl"
 	"github.com/suutaku/sshx/pkg/types"
 
-	"github.com/pion/webrtc/v3"
+	"github.com/pion/webrtc/v4"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,11 +26,12 @@ func (s *Wrapper) Write(b []byte) (int, error) {
 type WebRTC struct {
 	BaseConnection
 	*webrtc.PeerConnection
-	conf    webrtc.Configuration
-	stmChan *chan CleanRequest
+	conf       webrtc.Configuration
+	allownodes []string
+	stmChan    *chan CleanRequest
 }
 
-func NewWebRTC(conf webrtc.Configuration, impl impl.Impl, nodeId string, targetId string, poolId types.PoolId, direct int32, stmChan *chan CleanRequest) *WebRTC {
+func NewWebRTC(conf webrtc.Configuration, allownodes []string, impl impl.Impl, nodeId string, targetId string, poolId types.PoolId, direct int32, stmChan *chan CleanRequest) *WebRTC {
 	pc, err := webrtc.NewPeerConnection(conf)
 	if err != nil {
 		logrus.Error("rtc error:", err)
@@ -40,6 +42,7 @@ func NewWebRTC(conf webrtc.Configuration, impl impl.Impl, nodeId string, targetI
 		conf:           conf,
 		BaseConnection: *NewBaseConnection(impl, nodeId, targetId, poolId, direct, impl.Code()),
 		stmChan:        stmChan,
+		allownodes:     allownodes,
 	}
 	ret.impl.SetPairId(poolId.String(ret.Direction()))
 	return ret
@@ -73,6 +76,15 @@ func (pair *WebRTC) Response() error {
 				pair.Close()
 				return
 			}
+
+			logrus.Info("allowed node", pair.allownodes)
+			if !slices.Contains(pair.allownodes, pair.targetId) {
+				logrus.Error("not allowed node:", pair.targetId)
+				pair.Exit <- fmt.Errorf("not allowed node")
+				pair.Close()
+				return
+			}
+
 			pair.Exit <- err
 			pair.Ready()
 			logrus.Info("data channel open 2")

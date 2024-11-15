@@ -31,17 +31,16 @@ func cmdCopyId(cmd *cli.Cmd) {
 }
 
 func cmdConnect(cmd *cli.Cmd) {
-	cmd.Spec = "[ -X ] [ -i ]ADDR"
+	cmd.Spec = "[ -i ] ADDR"
 
-	tmp := cmd.BoolOpt("X x11", false, "using X11 opton, default false")
 	ident := cmd.StringOpt("i identification", "", "a private path, default empty for ~/.ssh/id_rsa")
 
-	addr := cmd.StringArg("ADDR", "", "remote target address [username]@[host]:[port]")
+	addr := cmd.StringArg("ADDR", "", "remote target address [username]@[nodeid]")
 	cmd.Action = func() {
 		if addr == nil || *addr == "" {
 			return
 		}
-		imp := impl.NewSSH(*addr, *tmp, *ident, false)
+		imp := impl.NewSSH(*addr, false, *ident, false)
 		err := imp.Preper()
 		if err != nil {
 			logrus.Error(err)

@@ -9,7 +9,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/pion/webrtc/v3"
+	"github.com/pion/webrtc/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/suutaku/sshx/pkg/impl"
 	"github.com/suutaku/sshx/pkg/types"
@@ -21,15 +21,17 @@ type WebRTCService struct {
 	sigPush             chan types.SignalingInfo
 	conf                webrtc.Configuration
 	signalingServerAddr string
+	allownodes          []string
 }
 
-func NewWebRTCService(id, signalingServerAddr string, conf webrtc.Configuration) *WebRTCService {
+func NewWebRTCService(id, signalingServerAddr string, conf webrtc.Configuration, allownodes []string) *WebRTCService {
 	return &WebRTCService{
 		sigPull:               make(chan types.SignalingInfo, 128),
 		sigPush:               make(chan types.SignalingInfo, 128),
 		conf:                  conf,
 		signalingServerAddr:   signalingServerAddr,
 		BaseConnectionService: *NewBaseConnectionService(id),
+		allownodes:            allownodes,
 	}
 }
 
@@ -54,7 +56,7 @@ func (wss *WebRTCService) CreateConnection(sender *impl.Sender, sock net.Conn, p
 		iface.SetConn(sock)
 	}
 
-	pair := NewWebRTC(wss.conf, iface, wss.id, iface.HostId(), poolId, CONNECTION_DRECT_OUT, &wss.CleanChan)
+	pair := NewWebRTC(wss.conf, wss.allownodes, iface, wss.id, iface.HostId(), poolId, CONNECTION_DRECT_OUT, &wss.CleanChan)
 	if pair == nil {
 		return fmt.Errorf("cannot create pair")
 	}
@@ -146,7 +148,7 @@ func (wss *WebRTCService) ServeOfferInfo(info types.SignalingInfo) {
 	}
 	iface.SetHostId(info.Source)
 	// set candidate pool id direction to out for self(server)
-	pair := NewWebRTC(wss.conf, iface, wss.id, info.Source, info.Id, CONNECTION_DRECT_IN, &wss.CleanChan)
+	pair := NewWebRTC(wss.conf, wss.allownodes, iface, wss.id, info.Source, info.Id, CONNECTION_DRECT_IN, &wss.CleanChan)
 	// set candidate pool id direction to out for client
 	err := pair.Response()
 	if err != nil {

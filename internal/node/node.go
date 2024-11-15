@@ -15,7 +15,7 @@ func NewNode(home string) *Node {
 	cm := conf.NewConfManager(home)
 	enabledService := []conn.ConnectionService{
 		conn.NewDirectService(cm.Conf.ID),
-		conn.NewWebRTCService(cm.Conf.ID, cm.Conf.SignalingServerAddr, cm.Conf.RTCConf),
+		conn.NewWebRTCService(cm.Conf.ID, cm.Conf.SignalingServerAddr, cm.Conf.RTCConf, cm.Conf.AllowNodes),
 	}
 	return &Node{
 		confManager: cm,

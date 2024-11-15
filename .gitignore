@@ -1,4 +1,4 @@
 
-./signaling
-./sshx
-./sshx-linux
+signaling-linux-amd64
+sshx-linux-amd64
+sshx-darwin-arm64

@@ -45,14 +45,9 @@ type Impl interface {
 var registeddApp = []Impl{
 	&SSH{},
 	&Proxy{},
-	&SSHFS{},
 	&SCP{},
-	&VNCService{},
-	&VNC{},
 	&STAT{},
 	&Messager{},
-	&Transfer{},
-	&TransferService{},
 }
 
 func GetImpl(code int32) Impl {
