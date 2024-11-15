@@ -7,7 +7,6 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/jawher/mow.cli v1.2.0
 	github.com/jedib0t/go-pretty/v6 v6.6.1
-	github.com/martinlindhe/notify v0.0.0-20181008203735-20632c9a275a
 	github.com/pion/webrtc/v4 v4.0.1
 	github.com/povsister/scp v0.0.0-20240802064259-28781e87b246
 	github.com/sirupsen/logrus v1.9.3
@@ -18,13 +17,11 @@ require (
 )
 
 require (
-	github.com/deckarep/gosx-notifier v0.0.0-20180201035817-e127226297fb // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pion/datachannel v1.5.9 // indirect
 	github.com/pion/dtls/v3 v3.0.3 // indirect
@@ -56,6 +53,5 @@ require (
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/toast.v1 v1.0.0-20180812000517-0a84660828b2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

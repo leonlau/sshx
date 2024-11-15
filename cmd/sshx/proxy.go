@@ -15,7 +15,7 @@ func cmdStopProxy(cmd *cli.Cmd) {
 	cmd.Action = func() {
 		imp := impl.NewProxy(0, "")
 		imp.NoNeedConnect()
-		sender := impl.NewSender(imp, types.OPTION_TYPE_DOWN)
+		sender := impl.NewSender(imp, types.OPTION_TYPE_DOWN, "")
 		sender.PairId = []byte(*pairId)
 		sender.SendDetach()
 	}
@@ -39,7 +39,7 @@ func cmdStartProxy(cmd *cli.Cmd) {
 		proxy.Preper()
 		proxy.NoNeedConnect()
 
-		sender := impl.NewSender(proxy, types.OPTION_TYPE_UP)
+		sender := impl.NewSender(proxy, types.OPTION_TYPE_UP, "")
 		_, err := sender.SendDetach()
 		if err != nil {
 			logrus.Error(err)

@@ -15,13 +15,15 @@ import (
 type DirectConnection struct {
 	BaseConnection
 	net.Conn
-	CleanChan *chan CleanRequest
+	CleanChan    *chan CleanRequest
+	localTCPPort int32
 }
 
-func NewDirectConnection(impl impl.Impl, nodeId string, targetId string, poolId types.PoolId, direct int32, cleanChan *chan CleanRequest) *DirectConnection {
+func NewDirectConnection(impl impl.Impl, nodeId string, targetId string, poolId types.PoolId, direct int32, cleanChan *chan CleanRequest, localTCPPort int32) *DirectConnection {
 	ret := &DirectConnection{
 		BaseConnection: *NewBaseConnection(impl, nodeId, targetId, poolId, direct, impl.Code()),
 		CleanChan:      cleanChan,
+		localTCPPort:   localTCPPort,
 	}
 	return ret
 }
@@ -42,7 +44,7 @@ func (dc *DirectConnection) Name() string {
 func (dc *DirectConnection) Dial() error {
 	if dc.impl.IsNeedConnect() {
 		logrus.Debug("dial ", dc.TargetId(), " directly")
-		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", dc.TargetId(), directPort))
+		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", dc.TargetId(), dc.localTCPPort))
 		if err != nil {
 			return err
 		}

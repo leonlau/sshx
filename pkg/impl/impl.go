@@ -47,7 +47,6 @@ var registeddApp = []Impl{
 	&Proxy{},
 	&SCP{},
 	&STAT{},
-	&Messager{},
 }
 
 func GetImpl(code int32) Impl {

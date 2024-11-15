@@ -48,7 +48,7 @@ func (s *SCP) Dial() error {
 		return err
 	}
 
-	sender := NewSender(ssht, types.OPTION_TYPE_UP)
+	sender := NewSender(ssht, types.OPTION_TYPE_UP, "")
 	conn, err := sender.Send()
 	if err != nil {
 		logrus.Error(err)

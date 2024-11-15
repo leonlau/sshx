@@ -10,8 +10,6 @@ import (
 	"github.com/suutaku/sshx/pkg/types"
 )
 
-const directPort = 8099
-
 type DirectInfo struct {
 	Id       int64
 	ImplCode int32
@@ -20,17 +18,19 @@ type DirectInfo struct {
 
 type DirectService struct {
 	BaseConnectionService
+	localTCPPort int32
 }
 
-func NewDirectService(id string) *DirectService {
+func NewDirectService(id string, localTCPPort int32) *DirectService {
 	return &DirectService{
 		BaseConnectionService: *NewBaseConnectionService(id),
+		localTCPPort:          localTCPPort,
 	}
 }
 
 func (ds *DirectService) Start() error {
 	ds.BaseConnectionService.Start()
-	listenner, err := net.Listen("tcp", fmt.Sprintf(":%d", directPort))
+	listenner, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", ds.localTCPPort))
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -54,7 +54,7 @@ func (ds *DirectService) Start() error {
 			imp.SetHostId(info.HostId)
 			poolId := types.NewPoolId(info.Id, imp.Code())
 			// server reset direction
-			conn := NewDirectConnection(imp, ds.Id(), info.HostId, *poolId, CONNECTION_DRECT_IN, &ds.CleanChan)
+			conn := NewDirectConnection(imp, ds.Id(), info.HostId, *poolId, CONNECTION_DRECT_IN, &ds.CleanChan, ds.localTCPPort)
 			conn.Conn = sock
 			err = conn.Response()
 			if err != nil {
@@ -82,7 +82,7 @@ func (ds *DirectService) CreateConnection(sender *impl.Sender, sock net.Conn, po
 	if !sender.Detach {
 		iface.SetConn(sock)
 	}
-	pair := NewDirectConnection(iface, ds.Id(), iface.HostId(), poolId, CONNECTION_DRECT_OUT, &ds.CleanChan)
+	pair := NewDirectConnection(iface, ds.Id(), iface.HostId(), poolId, CONNECTION_DRECT_OUT, &ds.CleanChan, ds.localTCPPort)
 	err = pair.Dial()
 	if err != nil {
 		return err

@@ -115,7 +115,7 @@ func (base *BaseConnectionService) AttachConnection(sender *impl.Sender, sock ne
 	if impl.GetImplName(pair.GetImpl().Code()) != impl.GetImplName(imp.Code()) {
 		return fmt.Errorf("cannot impl type dismatch, except %s, got %s", impl.GetImplName(pair.GetImpl().Code()), impl.GetImplName(imp.Code()))
 	}
-	newSender := impl.NewSender(pair.GetImpl(), types.OPTION_TYPE_ATTACH)
+	newSender := impl.NewSender(pair.GetImpl(), types.OPTION_TYPE_ATTACH, "")
 	logrus.Warn("replace impl for host id ", pair.GetImpl().HostId())
 	sender.Payload = newSender.Payload
 	return pair.GetImpl().Attach(sock)

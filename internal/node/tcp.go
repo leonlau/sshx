@@ -2,21 +2,44 @@ package node
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/suutaku/sshx/pkg/conf"
 	"github.com/suutaku/sshx/pkg/impl"
 	"github.com/suutaku/sshx/pkg/types"
 )
 
 func (node *Node) ServeTCP() {
-	listenner, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", node.confManager.Conf.LocalTCPPort))
+
+	os.Remove(conf.SockFile)
+	// 创建目录（如果不存在）
+	if err := os.MkdirAll(filepath.Dir(conf.SockFile), 0755); err != nil {
+		logrus.Errorf("failed to create socket directory: %w", err)
+		panic(err)
+	}
+
+	listenner, err := net.Listen("unix", conf.SockFile)
 	if err != nil {
 		logrus.Error(err)
 		panic(err)
 	}
+
+	// 设置socket文件权限
+	if err := os.Chmod(conf.SockFile, 0666); err != nil {
+		logrus.Errorf("chmod socket file error: %s", err)
+		panic(err)
+	}
+
+	// listenner, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", node.confManager.Conf.LocalTCPPort))
+	// if err != nil {
+	// 	logrus.Error(err)
+	// 	panic(err)
+	// }
+
 	defer listenner.Close()
 	for node.running {
 		sock, err := listenner.Accept()

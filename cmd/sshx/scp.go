@@ -25,7 +25,7 @@ func cmdCopy(cmd *cli.Cmd) {
 			logrus.Error(err)
 			return
 		}
-		sender := impl.NewSender(imp, types.OPTION_TYPE_UP)
+		sender := impl.NewSender(imp, types.OPTION_TYPE_UP, "")
 		_, err = sender.Send()
 		if err != nil {
 			logrus.Error(err)

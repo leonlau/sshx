@@ -20,7 +20,7 @@ type Sender struct {
 	Status     int32
 }
 
-func NewSender(imp Impl, optCode int32) *Sender {
+func NewSender(imp Impl, optCode int32, confHome string) *Sender {
 	if imp.HostId() == "" {
 		logrus.Warn("Host Id not set, maybe you should set it on Preper")
 	}
@@ -34,8 +34,9 @@ func NewSender(imp Impl, optCode int32) *Sender {
 		return nil
 	}
 	ret.Payload = buf.Bytes()
-	cm := conf.NewConfManager("")
-	ret.LocalEntry = fmt.Sprintf("127.0.0.1:%d", cm.Conf.LocalTCPPort)
+	// cm := conf.NewConfManager("")
+	// ret.LocalEntry = fmt.Sprintf("127.0.0.1:%d", cm.Conf.LocalTCPPort)
+	ret.LocalEntry = conf.SockFile
 	ret.PairId = []byte(imp.PairId())
 	return ret
 }
@@ -59,7 +60,8 @@ func (sender *Sender) GetImpl() Impl {
 }
 
 func (sender *Sender) Send() (net.Conn, error) {
-	conn, err := net.Dial("tcp", sender.LocalEntry)
+	// conn, err := net.Dial("tcp", sender.LocalEntry)
+	conn, err := net.Dial("unix", sender.LocalEntry)
 	if err != nil {
 		return nil, err
 	}

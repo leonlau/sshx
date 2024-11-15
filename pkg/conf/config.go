@@ -16,6 +16,8 @@ import (
 	"github.com/suutaku/sshx/internal/utils"
 )
 
+const SockFile = "/var/run/sshx/sshx.sock"
+
 type Configure struct {
 	LocalSSHPort        int32
 	LocalTCPPort        int32

@@ -19,7 +19,7 @@ func cmdStatus(cmd *cli.Cmd) {
 			return
 		}
 
-		sender := impl.NewSender(imp, types.OPTION_TYPE_STAT)
+		sender := impl.NewSender(imp, types.OPTION_TYPE_STAT, "")
 		if sender == nil {
 			logrus.Error("cannot create sender")
 			return

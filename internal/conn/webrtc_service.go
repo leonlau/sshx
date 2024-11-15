@@ -231,11 +231,9 @@ func (wss *WebRTCService) ServeSignaling() {
 			}
 			var info types.SignalingInfo
 			if err = gob.NewDecoder(res.Body).Decode(&info); err != nil {
-				if err != nil {
-					res.Body.Close()
-					time.Sleep(1 * time.Second)
-					continue
-				}
+				res.Body.Close()
+				time.Sleep(1 * time.Second)
+				continue
 			}
 			res.Body.Close()
 			wss.sigPull <- info

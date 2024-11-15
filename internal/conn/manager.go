@@ -50,23 +50,23 @@ func (cm *ConnectionManager) Stop() {
 
 func (cm *ConnectionManager) CreateConnection(sender *impl.Sender, sock net.Conn, poolId types.PoolId) error {
 	for i := 0; i < len(cm.css); i++ {
-
-		if cm.css[i].IsReady() {
-			go func(cs ConnectionService) {
+		num := i
+		if cm.css[num].IsReady() {
+			go func(cs ConnectionService, num int) {
 				s, c := net.Pipe()
 				err := cs.CreateConnection(sender, c, poolId)
 				if err != nil {
-					logrus.Error(err, i)
+					logrus.Error(err, num)
 					return
 				}
 				sender.PairId = []byte(poolId.String(CONNECTION_DRECT_OUT))
 				err = cs.ResponseTCP(sender, sock)
 				if err != nil {
-					logrus.Error(err, i)
+					logrus.Error(err, num)
 					return
 				}
 				utils.Pipe(&sock, &s)
-			}(cm.css[i])
+			}(cm.css[num], num)
 		}
 
 		// go func(idx int) {

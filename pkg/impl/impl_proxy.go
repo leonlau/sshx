@@ -68,7 +68,7 @@ func (p *Proxy) doDial(inconn net.Conn) {
 		},
 	}
 	imp.SetParentId(p.PairId())
-	sender := NewSender(imp, types.OPTION_TYPE_UP)
+	sender := NewSender(imp, types.OPTION_TYPE_UP, "")
 	conn, err := sender.Send()
 	if err != nil {
 		logrus.Error(err)
