@@ -3,6 +3,7 @@ package conf
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -16,7 +17,12 @@ import (
 	"github.com/suutaku/sshx/internal/utils"
 )
 
-const SockFile = "/var/run/sshx/sshx.sock"
+const (
+	SockFile              = "/var/run/sshx/sshx.sock"
+	defaultDaemonHomePath = "/etc/sshx"
+)
+
+var IsDaemon = false
 
 type Configure struct {
 	LocalSSHPort        int32
@@ -84,7 +90,7 @@ func ClearKnownHosts(subStr string) {
 
 func NewConfManager(homePath string) *ConfManager {
 	if homePath == "" {
-		homePath = utils.GetSSHXHome()
+		homePath = GetSSHXHome()
 	}
 	var tmp Configure
 	vp := viper.New()
@@ -100,12 +106,14 @@ func NewConfManager(homePath string) *ConfManager {
 			defaultConfig.AllowNodes = append(defaultConfig.AllowNodes, defaultConfig.ID)
 			bs, _ := json.MarshalIndent(defaultConfig, "", "  ")
 			vp.ReadConfig(bytes.NewBuffer(bs))
-			err = vp.WriteConfigAs(path.Join(homePath, "./.sshx_config.json"))
-			if err != nil {
-				logrus.Error(err)
-				os.Exit(1)
+			if IsDaemon {
+				err = vp.WriteConfigAs(path.Join(homePath, "./.sshx_config.json"))
+				if err != nil {
+					logrus.Error(err)
+					os.Exit(1)
+				}
+				os.Chmod(path.Join(homePath, "./.sshx_config.json"), 0777)
 			}
-			os.Chmod(path.Join(homePath, "./.sshx_config.json"), 0777)
 		} else {
 			logrus.Error(err)
 			os.Exit(1)
@@ -145,4 +153,22 @@ func (cm *ConfManager) Show() {
 	bs, _ := json.MarshalIndent(cm.Conf, "", "  ")
 	logrus.Info("read configure file at: ", cm.Path+"/.sshx_config.json")
 	logrus.Info(string(bs))
+}
+
+func GetSSHXHome() string {
+	rootStr := os.Getenv("SSHX_HOME")
+	if rootStr == "" {
+		if IsDaemon {
+			rootStr = defaultDaemonHomePath
+		} else {
+			rootStr = os.Getenv("HOME")
+		}
+	}
+	if _, err := os.Stat(rootStr); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(rootStr, 0766)
+		if err != nil {
+			logrus.Error(err)
+		}
+	}
+	return rootStr
 }

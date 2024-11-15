@@ -13,7 +13,7 @@ import (
 	"github.com/suutaku/sshx/pkg/types"
 )
 
-func (node *Node) ServeTCP() {
+func (node *Node) ServeUNIX() {
 
 	os.Remove(conf.SockFile)
 	// 创建目录（如果不存在）

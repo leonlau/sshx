@@ -14,10 +14,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const (
-	defaultHomePath = "/etc/sshx"
-)
-
 func PipeWR(reader1, reader2 io.Reader, writer1, writer2 io.Writer) error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, 2)
@@ -93,14 +89,6 @@ func DebugOn() bool {
 		return true
 	}
 	return false
-}
-
-func GetSSHXHome() string {
-	rootStr := os.Getenv("SSHX_HOME")
-	if rootStr == "" {
-		rootStr = defaultHomePath
-	}
-	return rootStr
 }
 
 func GetLocalIP() string {

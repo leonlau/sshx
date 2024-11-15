@@ -26,7 +26,7 @@ func NewNode(home string) *Node {
 func (node *Node) Start() {
 	node.running = true
 	go node.connMgr.Start()
-	node.ServeTCP()
+	node.ServeUNIX()
 }
 
 func (node *Node) Stop() {

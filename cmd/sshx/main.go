@@ -28,7 +28,6 @@ func main() {
 	}
 	app := cli.App("sshx", "a webrtc based ssh remote toolbox")
 	app.Command("daemon", "launch a sshx daemon", cmdDaemon)
-	app.Command("conf", "list configure informations", cmdConfig)
 	app.Command("conn", "connect to remote host", cmdConnect)
 	app.Command("scp", "copy files or directory from/to remote host", cmdCopy)
 	app.Command("proxy", "start proxy", cmdProxy)
